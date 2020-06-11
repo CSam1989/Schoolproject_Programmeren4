@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<!--  main-fragment (title, nav, mainContent, footer)  -->
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/main-layout :: main-fragment(
+                                                ~{::title},
+                                                ~{:: #nav-kempenrust},
+                                                ~{:: #main-content-kempenrust},
+                                                ~{:: #footer-kempenrust}
+                                               )}">
+<head>
+    <!-- Required meta tags -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <!-- Kan je aanpassen = tabblad titel-->
+    <title>Reserveringen</title>
+</head>
+<body>
+
+<div id="nav-kempenrust" th:replace="~{/fragments/app-fragments :: nav-default}">
+    Nav
+</div>
+
+<div id="main-content-kempenrust">
+    <!-- Enkel hier en title aanpassen!! Rest laten staan-->
+    <h1>Reserveringen</h1>
+    <div th:if="${message != null}" class="alert alert-secondary">
+        <span th:text="${message}"></span>
+    </div>
+    <div th:if="${details.size() == 0}" class="alert alert-secondary">
+        <span>Momenteel geen reserveringen.</span>
+    </div>
+    <table class="table" th:if="${details.size() > 0}">
+        <tr>
+            <th class="align-middle">Aankomst</th>
+            <th class="align-middle">Vertrek</th>
+            <th class="align-middle">Naam</th>
+            <th class="align-middle">Email</th>
+            <th class="align-middle">Kamer</th>
+            <th class="text-right">
+                <a th:href="@{/reserveren}"><button class="btn btn-secondary"><i class="fas fa-plus"></i></button></a>
+            </th>
+        </tr>
+        <tr th:each="detail: ${details}">
+            <td th:text="${#dates.format(detail.getBoeking().getDatumVan(), 'dd/MM/yy')}" class="align-middle"></td>
+            <td th:text="${#dates.format(detail.getBoeking().getDatumTot(), 'dd/MM/yy')}" class="align-middle"></td>
+            <td th:text="${detail.getBoeking().getKlant().getNaam()} + ' ' + ${detail.getBoeking().getKlant().getVoornaam()}" class="align-middle"></td>
+            <td th:text="${detail.getBoeking().getKlant().getEmail()}" class="align-middle"></td>
+            <td th:text="'Kamer ' + ${detail.getKamer().getKamerNummer()}" class="align-middle"></td>
+            <td class="text-right">
+                <a th:href="@{/reservering(Id=${detail.boekingID})}"><button class="btn btn-secondary"><i class="fas fa-pen"></i></button></a>
+                <button class="btn btn-secondary" data-toggle="modal" th:data-target="${'#deleteConfirmation'+detail.boekingID}"><i class="fas fa-trash"></i></button>
+                <div class="modal fade" th:id="${'deleteConfirmation'+detail.boekingID}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalCenterTitle">Verwijder reservatie?</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Ben je zeker dat je de reservatie <span th:text="${detail.getBoeking().getKlant().getNaam()} + ' ' + ${detail.getBoeking().getKlant().getVoornaam()}"></span> wil verwijderen?
+                            </div>
+                            <div class="modal-footer">
+                                <form th:action="@{/delete/reservering}" method="post">
+                                    <input type="hidden" name="boekingID" th:value="${detail.boekingID}">
+                                <button type="submit" class="btn btn-primary">Verwijder</button>
+                                </form>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuleer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="footer-kempenrust" th:replace="~{/fragments/app-fragments :: copyright}">
+    Footer
+</div>
+
+<!-- Modal -->
+
+</body>
+</html>

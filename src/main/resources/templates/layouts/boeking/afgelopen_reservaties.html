@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<!--  main-fragment (title, nav, mainContent, footer)  -->
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/main-layout :: main-fragment(
+                                                ~{::title},
+                                                ~{:: #nav-kempenrust},
+                                                ~{:: #main-content-kempenrust},
+                                                ~{:: #footer-kempenrust}
+                                               )}">
+<head>
+    <!-- Required meta tags -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <!-- Kan je aanpassen = tabblad titel-->
+    <title>Afgelopen reserveringen</title>
+</head>
+<body>
+
+<div id="nav-kempenrust" th:replace="~{/fragments/app-fragments :: nav-default}">
+    Nav
+</div>
+
+<div id="main-content-kempenrust">
+    <!-- Enkel hier en title aanpassen!! Rest laten staan-->
+    <h1 th:text="${melding.titel}"></h1>
+    <div th:if="${melding.foutmelding != null}" class="alert alert-secondary">
+        <span th:text="${melding.foutmelding}"></span>
+    </div>
+    <form class="form-inline" th:action="@{/afgelopen_reservaties}" method="post" th:object="${boeking}">
+        <div class="form-group mb-2">
+            <label for="datumVan" style="margin-right: 10px">Datum Van: </label>
+            <input type="date" th:field="*{datumVan}" class="form-control" id="datumVan" style="margin-right: 30px" required max="9999-12-31">
+        </div>
+        <div class="form-group mx-sm-3 mb-2">
+            <label for="datumTot" style="margin-right: 10px">Datum Tot: </label>
+            <input type="date" th:field="*{datumTot}" class="form-control" id="datumTot" style="margin-right: 30px" required max="9999-12-31">
+        </div>
+        <button type="submit" style="margin: 0px 0px 10px 50px"  class="btn btn-secondary">Zoeken</button>
+    </form>
+    <table class="table" th:if="${details != null}">
+        <tr>
+            <th class="align-middle">Aankomst</th>
+            <th class="align-middle">Vertrek</th>
+            <th class="align-middle">Naam</th>
+            <th class="align-middle">Email</th>
+            <th class="align-middle">Kamer</th>
+        </tr>
+        <tr th:each="detail: ${details}">
+            <td th:text="${#dates.format(detail.getBoeking().getDatumVan(), 'dd/MM/yy')}" class="align-middle"></td>
+            <td th:text="${#dates.format(detail.getBoeking().getDatumTot(), 'dd/MM/yy')}" class="align-middle"></td>
+            <td th:text="${detail.getBoeking().getKlant().getNaam()} + ' ' + ${detail.getBoeking().getKlant().getVoornaam()}" class="align-middle"></td>
+            <td th:text="${detail.getBoeking().getKlant().getEmail()}" class="align-middle"></td>
+            <td th:text="'Kamer ' + ${detail.getKamer().getKamerNummer()}" class="align-middle"></td>
+            <td>
+                <a th:href="@{/reservering(Id=${detail.boekingID})}"><button class="btn btn-secondary"><i class="fas fa-pen"></i></button></a>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="footer-kempenrust" th:replace="~{/fragments/app-fragments :: copyright}">
+    Footer
+</div>
+</body>
+</html>
